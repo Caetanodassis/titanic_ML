@@ -21,6 +21,7 @@ sex = st.sidebar.selectbox("Sexo (Sex)", ["male", "female"], index=0)
 
 age = st.sidebar.slider("Idade (Age)", min_value=1, max_value=100, value=28)
 
+# Correção: Variáveis definidas em minúsculas para evitar o NameError
 sibsp = st.sidebar.number_input("Irmãos/Cônjuges a bordo (SibSp)", min_value=0, max_value=10, value=0)
 
 parch = st.sidebar.number_input("Pais/Filhos a bordo (Parch)", min_value=0, max_value=10, value=0)
@@ -38,7 +39,7 @@ if st.button("Calcular Previsão do Modelo"):
         modelo = joblib.load('modelo_titanic_voting.pkl')
         
         # 2. Criar o DataFrame com a estrutura IDÊNTICA ao formato original do Titanic
-        # Corrigido: Indentação ajustada e variáveis reais associadas às colunas
+        # As chaves do dicionário mantêm as maiúsculas (padrão do Kaggle) e recebem as variáveis corrigidas
         dados_usuario = pd.DataFrame([{
             'PassengerId': 0,        
             'Pclass': pclass,
