@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Titanic ML — Classificação de Sobrevivência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0e0e0e;
+    --ink-2: #3a3a3a;
+    --ink-3: #6b6b6b;
+    --surface: #faf9f7;
+    --surface-2: #f2f0eb;
+    --surface-3: #e8e4dc;
+    --accent: #1a3a5c;
+    --accent-2: #c9440e;
+    --accent-light: #e8f0f8;
+    --gold: #b8892a;
+    --gold-light: #f5edd8;
+    --green: #1a5c3a;
+    --green-light: #e0f0e8;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.2);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(250,249,247,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 7rem 2rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 800px 500px at 50% 120%, rgba(26,58,92,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s ease forwards;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s ease forwards;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--ink-2);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s ease forwards;
+  }
+  .hero-badges {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s ease forwards;
+  }
+  .badge {
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border-strong);
+    color: var(--ink-2);
+    background: white;
+    font-family: var(--mono);
+  }
+  .hero-actions {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.6s ease forwards;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.3);
+  }
+  .btn-primary:hover { background: #234d78; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,58,92,0.35); }
+  .btn-ghost {
+    background: white;
+    color: var(--ink);
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: 1px solid var(--border-strong);
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { background: var(--surface-2); transform: translateY(-1px); }
+
+  .stats-bar {
+    background: var(--accent);
+    color: white;
+    padding: 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .stat-item { padding: 0 1rem; }
+  .stat-item + .stat-item { border-left: 1px solid rgba(255,255,255,0.15); }
+  .stat-num { font-family: var(--serif); font-size: 2.5rem; line-height: 1; display: block; margin-bottom: 4px; }
+  .stat-label { font-size: 0.8rem; opacity: 0.7; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  section { padding: 5rem 2rem; }
+  .container { max-width: 960px; margin: 0 auto; }
+  .section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .section-title { font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15; margin-bottom: 1rem; color: var(--ink); }
+  .section-desc { font-size: 1rem; color: var(--ink-2); max-width: 600px; line-height: 1.7; margin-bottom: 3rem; }
+
+  .pipeline-bg { background: var(--surface-2); }
+  .pipeline-steps { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .pipeline-steps::before {
+    content: ''; position: absolute; left: 28px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), var(--gold), var(--accent-2)); border-radius: 2px;
+  }
+  .pipeline-step { display: flex; gap: 1.5rem; padding: 1.5rem 0; position: relative; }
+  .step-num {
+    width: 58px; height: 58px; min-width: 58px; border-radius: 50%;
+    background: white; border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 500; font-size: 0.85rem; color: var(--accent);
+    z-index: 1; box-shadow: var(--shadow);
+  }
+  .step-content { padding-top: 12px; }
+  .step-title { font-weight: 600; font-size: 1rem; margin-bottom: 4px; color: var(--ink); }
+  .step-desc { font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; }
+  .step-code { display: inline-block; font-family: var(--mono); font-size: 0.78rem; background: var(--surface-3); color: var(--accent); padding: 2px 8px; border-radius: 4px; margin-top: 6px; }
+
+  .models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .model-card {
+    background: white; border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 1.75rem; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, transform 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .model-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .model-card.featured { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light), var(--shadow); }
+  .model-featured-tag {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--accent); color: white; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
+  }
+  .model-icon { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1rem; }
+  .model-icon.blue { background: var(--accent-light); }
+  .model-icon.gold { background: var(--gold-light); }
+  .model-icon.green { background: var(--green-light); }
+  .model-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .model-sub { font-size: 0.82rem; color: var(--ink-3); margin-bottom: 1rem; }
+  .model-desc { font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; margin-bottom: 1.25rem; }
+  .model-params { display: flex; flex-direction: column; gap: 4px; }
+  .param-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .param-row:last-child { border-bottom: none; }
+  .param-key { color: var(--ink-3); font-family: var(--mono); }
+  .param-val { font-family: var(--mono); font-weight: 500; color: var(--accent); font-size: 0.78rem; }
+
+  .results-bg { background: var(--accent); color: white; }
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 3rem; }
+  .result-cell { background: var(--accent); padding: 2rem; text-align: center; }
+  .result-model { font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-weight: 600; }
+  .result-score { font-family: var(--serif); font-size: 3rem; line-height: 1; margin-bottom: 4px; }
+  .result-score.best { color: #7dffc8; }
+  .result-metric { font-size: 0.78rem; opacity: 0.6; }
+  .results-note { font-size: 0.88rem; opacity: 0.7; text-align: center; line-height: 1.6; }
+
+  .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .insight-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; box-shadow: var(--shadow-sm); }
+  .insight-icon { width: 40px; height: 40px; min-width: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+  .insight-icon.red { background: #fde8e8; }
+  .insight-icon.blue { background: var(--accent-light); }
+  .insight-icon.gold { background: var(--gold-light); }
+  .insight-icon.green { background: var(--green-light); }
+  .insight-text { font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
+  .insight-text strong { color: var(--ink); font-weight: 600; display: block; margin-bottom: 2px; font-size: 0.92rem; }
+
+  .howto-bg { background: var(--surface-2); }
+  .steps-list { display: flex; flex-direction: column; gap: 1rem; }
+  .howto-step { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; gap: 1.25rem; align-items: flex-start; }
+  .howto-num { width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; font-family: var(--mono); margin-top: 2px; }
+  .howto-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .howto-desc { font-size: 0.87rem; color: var(--ink-2); line-height: 1.6; }
+  .code-block { background: #1e2a3a; color: #a8d1ff; font-family: var(--mono); font-size: 0.83rem; padding: 10px 14px; border-radius: var(--radius); margin-top: 10px; line-height: 1.5; overflow-x: auto; white-space: pre; }
+  .code-comment { color: #5a7a9a; }
+  .code-cmd { color: #7dffc8; }
+
+  .streamlit-demo { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; background: #fafafa; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); }
+  .demo-sidebar { background: #f0f0f0; padding: 1.25rem; border-right: 1px solid var(--border); }
+  .demo-sidebar-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 1rem; }
+  .demo-field { margin-bottom: 12px; }
+  .demo-field label { display: block; font-size: 0.75rem; color: #555; margin-bottom: 4px; font-weight: 500; }
+  .demo-select, .demo-input { width: 100%; padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.8rem; background: white; color: var(--ink); }
+  .demo-slider { width: 100%; height: 4px; border-radius: 2px; background: linear-gradient(to right, #1a3a5c 60%, #ddd 60%); margin-top: 4px; }
+  .demo-main { padding: 1.5rem; }
+  .demo-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .demo-sub { font-size: 0.8rem; color: #666; margin-bottom: 1.25rem; line-height: 1.5; }
+  .demo-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 4px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin-bottom: 1.25rem; display: block; width: 100%; }
+  .demo-result-success { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 1rem; margin-top: 12px; }
+  .demo-result-title { font-weight: 700; color: #155724; font-size: 0.9rem; margin-bottom: 8px; }
+  .demo-metric { font-size: 1.4rem; font-weight: 700; color: #155724; font-family: var(--mono); }
+  .demo-metric-label { font-size: 0.75rem; color: #155724; opacity: 0.7; }
+
+  .files-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+  .file-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, transform 0.2s; }
+  .file-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .file-icon { font-size: 1.5rem; }
+  .file-name { font-family: var(--mono); font-size: 0.82rem; font-weight: 500; color: var(--accent); word-break: break-all; }
+  .file-desc { font-size: 0.8rem; color: var(--ink-3); line-height: 1.5; }
+  .file-tag { display: inline-block; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 100px; margin-top: auto; }
+  .tag-required { background: #fde8e8; color: #991b1b; }
+  .tag-optional { background: var(--accent-light); color: var(--accent); }
+  .tag-output { background: var(--green-light); color: var(--green); }
+
+  footer { background: var(--ink); color: rgba(255,255,255,0.6); padding: 3rem 2rem; text-align: center; font-size: 0.85rem; }
+  footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+  footer a:hover { color: white; }
+  .footer-brand { font-family: var(--serif); font-size: 1.4rem; color: white; display: block; margin-bottom: 0.5rem; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 700px) {
+    .streamlit-demo { grid-template-columns: 1fr; }
+    .demo-sidebar { display: none; }
+    .stat-item + .stat-item { border-left: none; border-top: 1px solid rgba(255,255,255,0.15); }
+    .nav-links { display: none; }
+    .pipeline-steps::before { left: 27px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="#">🚢 Titanic ML</a>
+  <div class="nav-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#modelos">Modelos</a>
+    <a href="#resultados">Resultados</a>
+    <a href="#executar">Como executar</a>
+    <a href="https://github.com/SEU_USUARIO/titanic-ml" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <p class="hero-eyebrow">Machine Learning · scikit-learn · Streamlit</p>
+  <h1>Quem <em>sobreviveu</em><br>ao Titanic?</h1>
+  <p class="hero-sub">Um projeto completo de ML — da análise exploratória ao deploy — para prever a sobrevivência de passageiros com um ensemble de modelos.</p>
+  <div class="hero-badges">
+    <span class="badge">Python 3.9+</span>
+    <span class="badge">scikit-learn</span>
+    <span class="badge">Streamlit</span>
+    <span class="badge">VotingClassifier</span>
+    <span class="badge">GridSearchCV</span>
+    <span class="badge">Pipeline customizado</span>
+  </div>
+  <div class="hero-actions">
+    <a href="https://github.com/SEU_USUARIO/titanic-ml" class="btn-primary" target="_blank">Ver no GitHub</a>
+    <a href="#executar" class="btn-ghost">Como executar →</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">~82%</span><span class="stat-label">Acurácia final</span></div>
+  <div class="stat-item"><span class="stat-num">891</span><span class="stat-label">Passageiros</span></div>
+  <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Modelos no ensemble</span></div>
+  <div class="stat-item"><span class="stat-num">6</span><span class="stat-label">Etapas no pipeline</span></div>
+  <div class="stat-item"><span class="stat-num">4</span><span class="stat-label">Notebooks</span></div>
+</div>
+
+<section id="eda">
+  <div class="container">
+    <p class="section-label">Análise exploratória</p>
+    <h2 class="section-title">O que os dados revelam</h2>
+    <p class="section-desc">Antes de modelar, é preciso entender. A EDA revelou os fatores que mais influenciaram a sobrevivência.</p>
+    <div class="insights-grid reveal">
+      <div class="insight-card">
+        <div class="insight-icon red">♀</div>
+        <div class="insight-text"><strong>Sexo é a feature mais importante</strong>Mulheres sobreviveram 74% das vezes; homens apenas 19%. A regra "mulheres e crianças primeiro" foi real.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon blue">🎩</div>
+        <div class="insight-text"><strong>Classe social importa muito</strong>1ª classe: 63% de sobrevivência. 2ª: 47%. 3ª classe (maioria): apenas 24%.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon gold">👶</div>
+        <div class="insight-text"><strong>Crianças tiveram prioridade</strong>Menores de 12 anos tiveram ~58% de taxa de sobrevivência. Discretizar Age em faixas captura esse padrão.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon green">💰</div>
+        <div class="insight-text"><strong>Tarifa alta = mais chances</strong>Passageiros no quartil mais alto sobreviveram em ~65% dos casos. Distribuição altamente assimétrica.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline" class="pipeline-bg">
+  <div class="container">
+    <p class="section-label">Pré-processamento</p>
+    <h2 class="section-title">Pipeline customizado</h2>
+    <p class="section-desc">Seis transformadores encadeados, todos compatíveis com <code style="font-family:var(--mono);font-size:0.9em">Pipeline</code>, <code style="font-family:var(--mono);font-size:0.9em">GridSearchCV</code> e <code style="font-family:var(--mono);font-size:0.9em">cross_val_score</code>.</p>
+    <div class="pipeline-steps reveal">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-title">ColumnDropper</div>
+          <div class="step-desc">Remove Cabin (~77% nulo), Name e Ticket — colunas sem valor preditivo direto.</div>
+          <span class="step-code">errors='ignore'</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-title">CategorizerFeatures</div>
+          <div class="step-desc">Age → 7 faixas etárias + "Não_Informado" para nulos. Fare → 4 quartis. Elimina outliers e preserva o sinal da ausência.</div>
+          <span class="step-code">fit() aprende fare_max_ do treino — sem data leakage</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-title">OrdinalEncoderTransformer</div>
+          <div class="step-desc">Codifica Sex ordinalmente: female → 0.0 | male → 1.0.</div>
+          <span class="step-code">sklearn.OrdinalEncoder</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <div class="step-title">OneHotEmbarkedAndPclassEncoder</div>
+          <div class="step-desc">One-Hot encoding para Embarked, Pclass, faixa_etaria e Fare_categoria. handle_unknown='ignore' para categorias novas.</div>
+          <span class="step-code">sparse_output=False</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <div class="step-title">SimpleImputer</div>
+          <div class="step-desc">Preenche nulos remanescentes com a moda. Cuida dos 2 nulos em Embarked.</div>
+          <span class="step-code">strategy='most_frequent'</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">06</div>
+        <div class="step-content">
+          <div class="step-title">StandardScaler</div>
+          <div class="step-desc">Normaliza features numéricas (SibSp, Parch, Sex) para média 0 e desvio-padrão 1.</div>
+          <span class="step-code">parâmetros aprendidos apenas no treino</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="modelos">
+  <div class="container">
+    <p class="section-label">Modelagem</p>
+    <h2 class="section-title">Três modelos, um ensemble</h2>
+    <p class="section-desc">Cada modelo foi otimizado individualmente com GridSearchCV (cv=5). O ensemble combina os três para maximizar a generalização.</p>
+    <div class="models-grid reveal">
+      <div class="model-card">
+        <div class="model-icon blue">📐</div>
+        <div class="model-title">Regressão Logística</div>
+        <div class="model-sub">Notebook 02 · baseline interpretável</div>
+        <div class="model-desc">Modelo linear com regularização. Rápido, interpretável e coeficientes revelam a importância de cada feature.</div>
+        <div class="model-params">
+          <div class="param-row"><span class="param-key">C</span><span class="param-val">1</span></div>
+          <div class="param-row"><span class="param-key">penalty</span><span class="param-val">'l2'</span></div>
+          <div class="param-row"><span class="param-key">solver</span><span class="param-val">'liblinear'</span></div>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon gold">🌲</div>
+        <div class="model-title">Random Forest</div>
+        <div class="model-sub">Notebook 03 · 75 árvores, bootstrap</div>
+        <div class="model-desc">Ensemble de árvores robusto a outliers. Captura não-linearidades e fornece importância de features.</div>
+        <div class="model-params">
+          <div class="param-row"><span class="param-key">n_estimators</span><span class="param-val">75</span></div>
+          <div class="param-row"><span class="param-key">min_samples_leaf</span><span class="param-val">2</span></div>
+          <div class="param-row"><span class="param-key">min_samples_split</span><span class="param-val">10</span></div>
+        </div>
+      </div>
+      <div class="model-card featured">
+        <span class="model-featured-tag">⭐ Final</span>
+        <div class="model-icon green">🗳</div>
+        <div class="model-title">Voting Classifier</div>
+        <div class="model-sub">Notebook 04 · Soft Voting · LR + RF + KNN</div>
+        <div class="model-desc">Combina os três modelos pela média das probabilidades (Soft Voting). Reduz variância ao combinar erros distintos.</div>
+        <div class="model-params">
+          <div class="param-row"><span class="param-key">voting</span><span class="param-val">'soft'</span></div>
+          <div class="param-row"><span class="param-key">estimadores</span><span class="param-val">lr · rf · knn</span></div>
+          <div class="param-row"><span class="param-key">knn_metric</span><span class="param-val">'manhattan'</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resultados" class="results-bg">
+  <div class="container">
+    <p class="section-label" style="color:rgba(255,255,255,0.5)">Performance comparativa</p>
+    <h2 class="section-title" style="color:white">Resultados</h2>
+    <div class="results-grid reveal">
+      <div class="result-cell"><div class="result-model">Logistic Regression</div><div class="result-score">~80%</div><div class="result-metric">acurácia</div></div>
+      <div class="result-cell"><div class="result-model">Random Forest</div><div class="result-score">~81%</div><div class="result-metric">acurácia</div></div>
+      <div class="result-cell"><div class="result-model">Hard Voting</div><div class="result-score">~81%</div><div class="result-metric">acurácia</div></div>
+      <div class="result-cell"><div class="result-model">Soft Voting ⭐</div><div class="result-score best">~82%</div><div class="result-metric">acurácia</div></div>
+    </div>
+    <p class="results-note">Valores aproximados — variam conforme o split treino/teste e seed. Execute os notebooks para resultados exatos.<br>O Soft Voting supera o Hard porque usa a <em>confiança</em> de cada modelo, não apenas o voto binário.</p>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="container">
+    <p class="section-label">Aplicação web</p>
+    <h2 class="section-title">Interface Streamlit</h2>
+    <p class="section-desc">A aplicação carrega o pipeline completo serializado (.pkl) e faz previsões em tempo real para qualquer configuração de passageiro.</p>
+    <div class="streamlit-demo reveal">
+      <div class="demo-sidebar">
+        <div class="demo-sidebar-title">Características do Passageiro</div>
+        <div class="demo-field"><label>Classe da Passagem</label><select class="demo-select"><option>1</option><option>2</option><option selected>3</option></select></div>
+        <div class="demo-field"><label>Sexo</label><select class="demo-select"><option selected>female</option><option>male</option></select></div>
+        <div class="demo-field"><label>Idade — 24</label><div class="demo-slider"></div></div>
+        <div class="demo-field"><label>SibSp (irmãos/cônjuges)</label><input class="demo-input" value="0" type="number"></div>
+        <div class="demo-field"><label>Parch (pais/filhos)</label><input class="demo-input" value="0" type="number"></div>
+        <div class="demo-field"><label>Tarifa (Fare)</label><input class="demo-input" value="120.00" type="number"></div>
+        <div class="demo-field"><label>Porto de Embarque</label><select class="demo-select"><option>S</option><option selected>C</option><option>Q</option></select></div>
+      </div>
+      <div class="demo-main">
+        <div class="demo-title">🚢 Previsão de Sobrevivência — Titanic</div>
+        <div class="demo-sub">Insira as características no menu lateral para prever se o passageiro sobreviveria. O modelo usa um <strong>Voting Classifier Ensemble</strong> idêntico ao criado nos notebooks.</div>
+        <button class="demo-btn">Calcular Previsão do Modelo</button>
+        <div class="demo-result-success">
+          <div class="demo-result-title">🎉 Resultado: O passageiro SOBREVIVERIA!</div>
+          <div class="demo-metric">87.43%</div>
+          <div class="demo-metric-label">Probabilidade de Sobrevivência</div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.85rem;color:var(--ink-3)">
+      Para rodar localmente: <code style="font-family:var(--mono);background:var(--surface-2);padding:2px 8px;border-radius:4px">streamlit run graficos.py</code>
+    </p>
+  </div>
+</section>
+
+<section style="background:var(--surface-2)">
+  <div class="container">
+    <p class="section-label">Repositório</p>
+    <h2 class="section-title">Arquivos do projeto</h2>
+    <p class="section-desc">Todos os arquivos necessários para reproduzir o projeto do zero.</p>
+    <div class="files-grid reveal">
+      <div class="file-card"><div class="file-icon">📓</div><div class="file-name">01_EDA.ipynb</div><div class="file-desc">Análise exploratória completa com visualizações e achados estatísticos.</div><span class="file-tag tag-required">Notebook</span></div>
+      <div class="file-card"><div class="file-icon">📓</div><div class="file-name">02_Logistic_Regression.ipynb</div><div class="file-desc">Modelo 1 com GridSearchCV. Otimização de C, penalty e solver.</div><span class="file-tag tag-required">Notebook</span></div>
+      <div class="file-card"><div class="file-icon">📓</div><div class="file-name">03_Random_Forest.ipynb</div><div class="file-desc">Modelo 2 com GridSearchCV. Otimização de n_estimators e parâmetros de poda.</div><span class="file-tag tag-required">Notebook</span></div>
+      <div class="file-card"><div class="file-icon">📓</div><div class="file-name">04_Voting_Classifier.ipynb</div><div class="file-desc">Ensemble final. Comparação Hard vs Soft Voting com matriz de confusão.</div><span class="file-tag tag-required">Notebook</span></div>
+      <div class="file-card"><div class="file-icon">🐍</div><div class="file-name">data_transform.py</div><div class="file-desc">5 transformadores customizados do sklearn + função build_preprocessing_pipeline().</div><span class="file-tag tag-required">Core</span></div>
+      <div class="file-card"><div class="file-icon">🐍</div><div class="file-name">treinar_modelo.py</div><div class="file-desc">Script standalone para treinar o pipeline completo e gerar o .pkl.</div><span class="file-tag tag-required">Script</span></div>
+      <div class="file-card"><div class="file-icon">🌐</div><div class="file-name">graficos.py</div><div class="file-desc">Aplicação Streamlit com interface para previsão em tempo real.</div><span class="file-tag tag-required">App</span></div>
+      <div class="file-card"><div class="file-icon">📊</div><div class="file-name">Titanic-Dataset.csv</div><div class="file-desc">Dataset principal com 891 passageiros. Origem: Kaggle.</div><span class="file-tag tag-required">Dados</span></div>
+      <div class="file-card"><div class="file-icon">🤖</div><div class="file-name">modelo_titanic_voting.pkl</div><div class="file-desc">Pipeline completo serializado com joblib. Gerado pelo treinar_modelo.py.</div><span class="file-tag tag-output">Gerado</span></div>
+      <div class="file-card"><div class="file-icon">📦</div><div class="file-name">requirements.txt</div><div class="file-desc">Todas as dependências Python com versões mínimas.</div><span class="file-tag tag-optional">Config</span></div>
+      <div class="file-card"><div class="file-icon">🌐</div><div class="file-name">docs/index.html</div><div class="file-desc">Esta página — GitHub Pages com documentação visual do projeto.</div><span class="file-tag tag-optional">GitHub Pages</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="executar" class="howto-bg">
+  <div class="container">
+    <p class="section-label">Instruções</p>
+    <h2 class="section-title">Como executar</h2>
+    <p class="section-desc">Em 5 passos, do clone ao Streamlit rodando no seu navegador.</p>
+    <div class="steps-list reveal">
+      <div class="howto-step">
+        <div class="howto-num">1</div>
+        <div>
+          <div class="howto-title">Clone o repositório</div>
+          <div class="howto-desc">Faça o clone do projeto para sua máquina local.</div>
+          <div class="code-block"><span class="code-cmd">git clone</span> https://github.com/SEU_USUARIO/titanic-ml.git
+<span class="code-cmd">cd</span> titanic-ml</div>
+        </div>
+      </div>
+      <div class="howto-step">
+        <div class="howto-num">2</div>
+        <div>
+          <div class="howto-title">Instale as dependências</div>
+          <div class="howto-desc">Recomendado: crie um ambiente virtual antes de instalar.</div>
+          <div class="code-block"><span class="code-comment"># Opcional mas recomendado</span>
+python -m venv venv &amp;&amp; source venv/bin/activate
+
+<span class="code-cmd">pip install</span> -r requirements.txt</div>
+        </div>
+      </div>
+      <div class="howto-step">
+        <div class="howto-num">3</div>
+        <div>
+          <div class="howto-title">Execute os notebooks (exploração)</div>
+          <div class="howto-desc">Abra o Jupyter e execute na ordem. O data_transform.py deve estar na mesma pasta dos notebooks.</div>
+          <div class="code-block"><span class="code-cmd">jupyter notebook</span>
+<span class="code-comment"># Execute: 01 → 02 → 03 → 04</span></div>
+        </div>
+      </div>
+      <div class="howto-step">
+        <div class="howto-num">4</div>
+        <div>
+          <div class="howto-title">Treine e salve o modelo</div>
+          <div class="howto-desc">Gera o arquivo modelo_titanic_voting.pkl com o pipeline completo treinado.</div>
+          <div class="code-block"><span class="code-cmd">python</span> treinar_modelo.py
+<span class="code-comment"># ✅ Ficheiro 'modelo_titanic_voting.pkl' gerado!</span></div>
+        </div>
+      </div>
+      <div class="howto-step">
+        <div class="howto-num">5</div>
+        <div>
+          <div class="howto-title">Rode a aplicação Streamlit</div>
+          <div class="howto-desc">Abre automaticamente no navegador. Insira dados de um passageiro e veja a previsão em tempo real.</div>
+          <div class="code-block"><span class="code-cmd">streamlit run</span> graficos.py
+<span class="code-comment"># Acesse: http://localhost:8501</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-brand">🚢 Titanic ML</span>
+  <p style="margin-bottom:1rem">Projeto de Machine Learning · scikit-learn · Streamlit · Python</p>
+  <p>
+    <a href="https://github.com/SEU_USUARIO/titanic-ml" target="_blank">GitHub</a> ·
+    <a href="https://www.kaggle.com/c/titanic" target="_blank">Dataset (Kaggle)</a> ·
+    <a href="https://scikit-learn.org" target="_blank">scikit-learn</a>
+  </p>
+  <p style="margin-top:1.5rem;font-size:0.78rem;opacity:0.4">MIT License</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(
+  (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.1 }
+);
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
