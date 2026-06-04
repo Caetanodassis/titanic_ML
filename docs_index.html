@@ -313,7 +313,7 @@
     <a href="#modelos">Modelos</a>
     <a href="#resultados">Resultados</a>
     <a href="#executar">Como executar</a>
-    <a href="https://github.com/SEU_USUARIO/titanic-ml" target="_blank">GitHub ↗</a>
+    <a href="https://github.com/Caetanodassis/titanic_ML" target="_blank">GitHub ↗</a>
   </div>
 </nav>
 
@@ -330,7 +330,7 @@
     <span class="badge">Pipeline customizado</span>
   </div>
   <div class="hero-actions">
-    <a href="https://github.com/SEU_USUARIO/titanic-ml" class="btn-primary" target="_blank">Ver no GitHub</a>
+    <a href="https://github.com/Caetanodassis/titanic_ML" class="btn-primary" target="_blank">Ver no GitHub</a>
     <a href="#executar" class="btn-ghost">Como executar →</a>
   </div>
 </section>
@@ -387,7 +387,7 @@
         <div class="step-num">02</div>
         <div class="step-content">
           <div class="step-title">CategorizerFeatures</div>
-          <div class="step-desc">Age → 7 faixas etárias + "Não_Informado" para nulos. Fare → 4 quartis. Elimina outliers e preserva o sinal da ausência.</div>
+          <div class="step-desc">Age → 7 faixas etárias + "Não_Informado" para nulos. Fare → 4 quartis. Elimina outliers e preserves o sinal da ausência.</div>
           <span class="step-code">fit() aprende fare_max_ do treino — sem data leakage</span>
         </div>
       </div>
@@ -513,7 +513,7 @@
       </div>
     </div>
     <p style="text-align:center;margin-top:1.5rem;font-size:0.85rem;color:var(--ink-3)">
-      Para rodar localmente: <code style="font-family:var(--mono);background:var(--surface-2);padding:2px 8px;border-radius:4px">streamlit run graficos.py</code>
+      Para rodar localmente: <code style="font-family:var(--mono);background:var(--surface-2);padding:2px 8px;border-radius:4px">streamlit run interface.py</code>
     </p>
   </div>
 </section>
@@ -530,7 +530,7 @@
       <div class="file-card"><div class="file-icon">📓</div><div class="file-name">04_Voting_Classifier.ipynb</div><div class="file-desc">Ensemble final. Comparação Hard vs Soft Voting com matriz de confusão.</div><span class="file-tag tag-required">Notebook</span></div>
       <div class="file-card"><div class="file-icon">🐍</div><div class="file-name">data_transform.py</div><div class="file-desc">5 transformadores customizados do sklearn + função build_preprocessing_pipeline().</div><span class="file-tag tag-required">Core</span></div>
       <div class="file-card"><div class="file-icon">🐍</div><div class="file-name">treinar_modelo.py</div><div class="file-desc">Script standalone para treinar o pipeline completo e gerar o .pkl.</div><span class="file-tag tag-required">Script</span></div>
-      <div class="file-card"><div class="file-icon">🌐</div><div class="file-name">graficos.py</div><div class="file-desc">Aplicação Streamlit com interface para previsão em tempo real.</div><span class="file-tag tag-required">App</span></div>
+      <div class="file-card"><div class="file-icon">🌐</div><div class="file-name">interface.py</div><div class="file-desc">Aplicação Streamlit com interface para previsão em tempo real.</div><span class="file-tag tag-required">App</span></div>
       <div class="file-card"><div class="file-icon">📊</div><div class="file-name">Titanic-Dataset.csv</div><div class="file-desc">Dataset principal com 891 passageiros. Origem: Kaggle.</div><span class="file-tag tag-required">Dados</span></div>
       <div class="file-card"><div class="file-icon">🤖</div><div class="file-name">modelo_titanic_voting.pkl</div><div class="file-desc">Pipeline completo serializado com joblib. Gerado pelo treinar_modelo.py.</div><span class="file-tag tag-output">Gerado</span></div>
       <div class="file-card"><div class="file-icon">📦</div><div class="file-name">requirements.txt</div><div class="file-desc">Todas as dependências Python com versões mínimas.</div><span class="file-tag tag-optional">Config</span></div>
@@ -550,46 +550,46 @@
         <div>
           <div class="howto-title">Clone o repositório</div>
           <div class="howto-desc">Faça o clone do projeto para sua máquina local.</div>
-          <div class="code-block"><span class="code-cmd">git clone</span> https://github.com/SEU_USUARIO/titanic-ml.git
-<span class="code-cmd">cd</span> titanic-ml</div>
+          <div class="code-block"><span class="code-cmd">git clone</span> https://github.com/Caetanodassis/titanic_ML.git
+<span class="code-cmd">cd</span> titanic_ML</div>
         </div>
       </div>
       <div class="howto-step">
         <div class="howto-num">2</div>
         <div>
-          <div class="howto-title">Instale as dependências</div>
-          <div class="howto-desc">Recomendado: crie um ambiente virtual antes de instalar.</div>
-          <div class="code-block"><span class="code-comment"># Opcional mas recomendado</span>
-python -m venv venv &amp;&amp; source venv/bin/activate
+          <div class="howto-title">Crie e ative o ambiente virtual</div>
+          <div class="howto-desc">Isole as dependências do projeto.</div>
+          <div class="code-block"><span class="code-comment"># No Windows:</span>
+python -m venv venv
+venv\Scripts\activate
 
-<span class="code-cmd">pip install</span> -r requirements.txt</div>
+<span class="code-comment"># No Linux/Mac:</span>
+python3 -m venv venv
+source venv/bin/activate</div>
         </div>
       </div>
       <div class="howto-step">
         <div class="howto-num">3</div>
         <div>
-          <div class="howto-title">Execute os notebooks (exploração)</div>
-          <div class="howto-desc">Abra o Jupyter e execute na ordem. O data_transform.py deve estar na mesma pasta dos notebooks.</div>
-          <div class="code-block"><span class="code-cmd">jupyter notebook</span>
-<span class="code-comment"># Execute: 01 → 02 → 03 → 04</span></div>
+          <div class="howto-title">Instale as dependências</div>
+          <div class="howto-desc">Instale todas as bibliotecas necessárias listadas no requirements.txt.</div>
+          <div class="code-block">pip install -r requirements.txt</div>
         </div>
       </div>
       <div class="howto-step">
         <div class="howto-num">4</div>
         <div>
-          <div class="howto-title">Treine e salve o modelo</div>
-          <div class="howto-desc">Gera o arquivo modelo_titanic_voting.pkl com o pipeline completo treinado.</div>
-          <div class="code-block"><span class="code-cmd">python</span> treinar_modelo.py
-<span class="code-comment"># ✅ Ficheiro 'modelo_titanic_voting.pkl' gerado!</span></div>
+          <div class="howto-title">Treine o modelo (Opcional)</div>
+          <div class="howto-desc">Gere o arquivo do pipeline serializado se ele não existir.</div>
+          <div class="code-block">python treinar_modelo.py</div>
         </div>
       </div>
       <div class="howto-step">
         <div class="howto-num">5</div>
         <div>
-          <div class="howto-title">Rode a aplicação Streamlit</div>
-          <div class="howto-desc">Abre automaticamente no navegador. Insira dados de um passageiro e veja a previsão em tempo real.</div>
-          <div class="code-block"><span class="code-cmd">streamlit run</span> graficos.py
-<span class="code-comment"># Acesse: http://localhost:8501</span></div>
+          <div class="howto-title">Execute o Streamlit</div>
+          <div class="howto-desc">Rode o servidor local do Streamlit utilizando o arquivo de interface.</div>
+          <div class="code-block">streamlit run interface.py</div>
         </div>
       </div>
     </div>
@@ -597,22 +597,23 @@ python -m venv venv &amp;&amp; source venv/bin/activate
 </section>
 
 <footer>
-  <span class="footer-brand">🚢 Titanic ML</span>
-  <p style="margin-bottom:1rem">Projeto de Machine Learning · scikit-learn · Streamlit · Python</p>
-  <p>
-    <a href="https://github.com/SEU_USUARIO/titanic-ml" target="_blank">GitHub</a> ·
-    <a href="https://www.kaggle.com/c/titanic" target="_blank">Dataset (Kaggle)</a> ·
-    <a href="https://scikit-learn.org" target="_blank">scikit-learn</a>
-  </p>
-  <p style="margin-top:1.5rem;font-size:0.78rem;opacity:0.4">MIT License</p>
+  <span class="footer-brand">🚢 Titanic ML Project</span>
+  <p>Desenvolvido por Caetanodassis para fins de estudo em Ciência de Dados e Engenharia de Machine Learning.</p>
+  <p style="margin-top:1rem; font-size:0.75rem; opacity:0.5;">Layout inspirado em portfólios editoriais minimalistas.</p>
 </footer>
 
 <script>
-const observer = new IntersectionObserver(
-  (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-  { threshold: 0.1 }
-);
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  // Script simples de animação ao rolar a página (reveal)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 </script>
+
 </body>
 </html>
