@@ -69,7 +69,7 @@ titanic_project/
 ├── 🐍 Scripts Python
 │   ├── data_transform.py               # Transformadores customizados do sklearn
 │   ├── treinar_modelo.py               # Script para treinar e salvar o modelo .pkl
-│   └── graficos.py                     # Aplicação Streamlit (interface web)
+│   └── interface.py                     # Aplicação Streamlit (interface web)
 │
 ├── 📊 Dados
 │   └── Titanic-Dataset.csv             # Dataset principal (Kaggle)
@@ -243,7 +243,7 @@ Combina os três melhores modelos: **Logistic Regression + Random Forest + KNN**
 
 ## 🌐 Demo Streamlit
 
-A aplicação `graficos.py` é uma interface web construída com **Streamlit** que permite prever a sobrevivência de qualquer passageiro em tempo real.
+A aplicação `interface.py` é uma interface web construída com **Streamlit** que permite prever a sobrevivência de qualquer passageiro em tempo real.
 
 ### Como funciona a página
 
@@ -279,7 +279,7 @@ A aplicação `graficos.py` é uma interface web construída com **Streamlit** q
 ### Rodar localmente
 
 ```bash
-streamlit run graficos.py
+streamlit run interface.py
 ```
 
 Acesse em: `http://localhost:8501`
@@ -333,7 +333,7 @@ Isso cria o arquivo `modelo_titanic_voting.pkl` com o pipeline completo treinado
 ### 5. Rode a aplicação web
 
 ```bash
-streamlit run graficos.py
+streamlit run interface.py
 ```
 
 Acesse em: `http://localhost:8501`
