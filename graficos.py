@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 
 # Configuração da interface do Streamlit
 st.set_page_config(page_title="Titanic Predictor", page_icon="🚢", layout="centered")
@@ -21,7 +22,7 @@ sex = st.sidebar.selectbox("Sexo (Sex)", ["male", "female"], index=0)
 
 age = st.sidebar.slider("Idade (Age)", min_value=1, max_value=100, value=28)
 
-# Correção: Variáveis definidas em minúsculas para evitar o NameError
+# Variáveis padronizadas em minúsculas para evitar erros de compilação
 sibsp = st.sidebar.number_input("Irmãos/Cônjuges a bordo (SibSp)", min_value=0, max_value=10, value=0)
 
 parch = st.sidebar.number_input("Pais/Filhos a bordo (Parch)", min_value=0, max_value=10, value=0)
@@ -35,11 +36,14 @@ embarked = st.sidebar.selectbox("Porto de Embarque (Embarked)", ["S", "C", "Q"],
 st.subheader("Análise do Passageiro")
 if st.button("Calcular Previsão do Modelo"):
     try:
-        # 1. Carregar o modelo completo (Pipeline + Classificador)
-        modelo = joblib.load('modelo_titanic_voting.pkl')
+        # Resolução para Deploy: Encontra o caminho correto do arquivo na nuvem de forma dinâmica
+        caminho_atual = os.path.dirname(__file__)
+        caminho_modelo = os.path.join(caminho_atual, 'modelo_titanic_voting.pkl')
         
-        # 2. Criar o DataFrame com a estrutura IDÊNTICA ao formato original do Titanic
-        # As chaves do dicionário mantêm as maiúsculas (padrão do Kaggle) e recebem as variáveis corrigidas
+        # 1. Carrega o modelo completo (Pipeline + Classificador)
+        modelo = joblib.load(caminho_modelo)
+        
+        # 2. Cria o DataFrame com as colunas EXATAMENTE iguais às do formato original do Titanic (Kaggle)
         dados_usuario = pd.DataFrame([{
             'PassengerId': 0,        
             'Pclass': pclass,
@@ -54,7 +58,7 @@ if st.button("Calcular Previsão do Modelo"):
             'Embarked': embarked
         }])
         
-        # 3. Realizar as previsões usando o pipeline
+        # 3. Realiza as previsões usando o pipeline
         predicao = modelo.predict(dados_usuario)
         probabilidade = modelo.predict_proba(dados_usuario)
         
@@ -68,6 +72,6 @@ if st.button("Calcular Previsão do Modelo"):
             
     except FileNotFoundError:
         st.error("❌ O ficheiro 'modelo_titanic_voting.pkl' não foi encontrado. "
-                 "Execute primeiro o comando 'python treinar_modelo.py' no terminal para criar o modelo.")
+                 "Certifique-se de que fez o upload do arquivo .pkl para o seu repositório do GitHub.")
     except Exception as e:
         st.error(f"Ocorreu um erro inesperado: {e}")
