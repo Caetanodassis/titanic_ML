@@ -395,12 +395,6 @@ X_transformed = pipeline.fit_transform(X_train)
 
 ---
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
-
----
-
 <div align="center">
 
 Feito com ❤️ e muito `fit_transform()`
