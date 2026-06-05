@@ -23,7 +23,7 @@
 
 ---
 
-##Link Github Pages:
+## Link Github Pages:
 https://caetanodassis.github.io/titanic_ML/#modelos
 
 ---
