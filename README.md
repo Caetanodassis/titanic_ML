@@ -23,6 +23,11 @@
 
 ---
 
+##Link Github Pages:
+https://caetanodassis.github.io/titanic_ML/#modelos
+
+---
+
 ## 📋 Índice
 
 - [Sobre o projeto](#-sobre-o-projeto)
